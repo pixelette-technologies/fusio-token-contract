@@ -1,4 +1,4 @@
-# Fusio Token
+# Fusio Token Contract
 
 Token implementation for Project Fusio
 
