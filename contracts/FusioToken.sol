@@ -20,15 +20,19 @@ contract FusioToken is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable
     error InvalidZeroAddress();
 
     event NewMinter(address newMinter);
+    event Blacklisted(address indexed account);
+    event Unblacklisted(address indexed account);
 
     address public minter;
+
+    mapping(address => bool) private _blacklist;
 
     /**
      * @dev Storage gap for future upgrades
      * @custom:oz-upgrades-unsafe-allow state-variable-immutable
      * state-variable-assignment 
      */ 
-    uint256[50] private __gap;
+    uint256[49] private __gap;
 
     /**
      * @dev Modifier to restrict functions to only the minter
@@ -88,6 +92,9 @@ contract FusioToken is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable
         override(ERC20Upgradeable, ERC20PausableUpgradeable)
         whenNotPaused
     {
+        require(!_blacklist[from], "Sender is blacklisted");
+        require(!_blacklist[to], "Recipient is blacklisted");
+
         super._update(from, to, value);
     }
     
@@ -102,6 +109,45 @@ contract FusioToken is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeable
         }
         minter = newMinter;
         emit NewMinter(newMinter);
+    }
+
+    /**
+     * @notice Add multiple addresses to the blacklist
+     * @param accounts Array of addresses to blacklist
+     */
+    function blacklist(address[] calldata accounts) external onlyOwner {
+        for (uint256 i = 0; i < accounts.length; i++) {
+            address account = accounts[i];
+            if (_blacklist[account] || account == address(0)) {
+                continue;
+            }
+            _blacklist[account] = true;
+            emit Blacklisted(account);
+        }
+    }
+
+    /**
+     * @notice Remove multiple addresses from the blacklist
+     * @param accounts Address to remove
+     */
+    function unblacklist(address[] calldata accounts) external onlyOwner {
+        for (uint256 i = 0; i < accounts.length; i++) {
+            address account = accounts[i];
+            if (account == address(0) || !_blacklist[account]) {
+                continue;
+            }
+
+            _blacklist[account] = false;
+            emit Unblacklisted(account);
+        }
+    }
+
+    /**
+     * @notice Check if an address is blacklisted
+     * @param account Address to check
+     */
+    function isBlacklisted(address account) external view returns (bool) {
+        return _blacklist[account];
     }
 
     function pause() external onlyOwner {
