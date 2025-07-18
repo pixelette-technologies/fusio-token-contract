@@ -1,13 +1,18 @@
-# Sample Hardhat Project
+# Fusio Token
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
+Token implementation for Project Fusio
 
-Try running some of the following tasks:
-
-```shell
-npx hardhat help
+1. clone repo:
+```
+git clone https://github.com/pixelette-technologies/fusio-token-contract.git
+or
+git clone git@github.com:pixelette-technologies/fusio-token-contract.git
+```
+2. Install packages:
+```
+yarn install
+```
+3. Run tests with:
+```
 npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
 ```
